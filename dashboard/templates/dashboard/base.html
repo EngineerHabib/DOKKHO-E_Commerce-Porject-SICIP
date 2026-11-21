@@ -1,0 +1,125 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}
+    {% block dashboard_title %}Dashboard | SmartCommerce{% endblock %}
+{% endblock %}
+
+{% block body_class %}bg-light{% endblock %}
+
+{% block dashboard_layout %}
+
+<div class="container-fluid p-0">
+
+    <div class="row g-0">
+
+        <!-- FIXED SIDEBAR -->
+        <aside class="col-12 col-md-3 col-lg-2 bg-dark text-white
+                      position-fixed top-0 start-0 bottom-0
+                      overflow-y-auto"
+               style="z-index: 1030;">
+
+            {% include "dashboard/sidebar.html" %}
+
+        </aside>
+
+
+        <!-- MAIN DASHBOARD AREA -->
+        <div class="col-12 col-md-9 col-lg-10 ms-md-auto
+                    min-vh-100 d-flex flex-column">
+
+            <!-- TOP NAVBAR -->
+            <nav class="navbar bg-white border-bottom px-3 px-md-4 py-3
+                        sticky-top"
+                 style="z-index: 1020;">
+
+                <div class="container-fluid p-0">
+
+                    <div>
+                        <h5 class="fw-bold mb-0">
+
+                            {% block page_heading %}
+                                Dashboard Overview
+                            {% endblock %}
+
+                        </h5>
+
+                        <small class="text-secondary">
+                            SmartCommerce Management System
+                        </small>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <i class="bi bi-person-circle fs-4 text-secondary"></i>
+
+                        <div class="text-end">
+
+                            <div class="fw-semibold">
+                                {{ display_name|default:request.user.username }}
+                            </div>
+
+                            <small class="text-secondary">
+                                {{ display_role }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </nav>
+
+
+            <!-- MESSAGES -->
+            <div class="px-3 px-md-4 pt-3">
+
+                {% if messages %}
+
+                    {% for message in messages %}
+
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                             role="alert">
+
+                            {{ message }}
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                            </button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- SCROLLABLE DASHBOARD CONTENT -->
+            <main class="flex-grow-1 p-3 p-md-4">
+
+                {% block dashboard_content %}
+                {% endblock dashboard_content %}
+
+            </main>
+
+
+            <!-- FOOTER -->
+            <footer class="bg-white border-top text-center py-3">
+
+                <small class="text-secondary">
+                    © {% now "Y" %} SmartCommerce. All Rights Reserved.
+                </small>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock dashboard_layout %}

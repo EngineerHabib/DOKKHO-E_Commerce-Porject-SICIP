@@ -1,0 +1,538 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}{{ product.name }} | SmartCommerce{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-detail-section {
+        background: #f8f9fa;
+        min-height: 80vh;
+        padding: 50px 0;
+    }
+
+    .product-detail-card {
+        background: #fff;
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+    }
+
+    .product-detail-image {
+        width: 100%;
+        height: 450px;
+        object-fit: contain;
+        background: #f1f3f5;
+        padding: 20px;
+    }
+
+    .product-image-placeholder {
+        height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef1f5;
+        color: #8b95a1;
+        font-size: 65px;
+    }
+
+    .detail-category {
+        font-size: 13px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .detail-name {
+        font-size: 30px;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .detail-price {
+        font-size: 30px;
+        font-weight: 700;
+        color: #198754;
+    }
+
+    .detail-old-price {
+        color: #999;
+        font-size: 18px;
+        text-decoration: line-through;
+    }
+
+    .detail-rating,
+    .review-stars {
+        color: #f0ad00;
+    }
+
+    .detail-stock {
+        font-size: 14px;
+        font-weight: 600;
+        padding: 7px 12px;
+        border-radius: 6px;
+    }
+
+    .discount-label {
+        background: #dc3545;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .detail-description {
+        color: #666;
+        line-height: 1.8;
+    }
+
+    .quantity-input {
+        max-width: 110px;
+    }
+
+    .review-section {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 30px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+    }
+
+    .review-card {
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .review-card:last-child {
+        border-bottom: 0;
+    }
+
+    .review-user {
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .review-comment {
+        color: #666;
+        line-height: 1.7;
+        margin-top: 10px;
+    }
+
+    .review-empty {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 35px 15px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    @media (max-width: 767px) {
+        .product-detail-image,
+        .product-image-placeholder {
+            height: 300px;
+        }
+
+        .detail-name {
+            font-size: 24px;
+        }
+
+        .review-section {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<section class="product-detail-section">
+    <div class="container">
+
+        <!-- Product Information -->
+        <div class="product-detail-card">
+            <div class="row g-0">
+
+                <!-- Product Image -->
+                <div class="col-md-6">
+
+                    {% if product.image %}
+                        <img
+                            src="{{ product.image.url }}"
+                            class="product-detail-image"
+                            alt="{{ product.name }}"
+                        >
+                    {% else %}
+                        <div class="product-image-placeholder">
+                            <i class="bi bi-image"></i>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-md-6">
+                    <div class="p-4 p-lg-5">
+
+                        <div class="detail-category mb-2">
+                            {{ product.category.name }}
+                        </div>
+
+                        <h2 class="detail-name mb-3">
+                            {{ product.name }}
+                        </h2>
+
+                        <!-- Rating -->
+                        <div class="mb-3">
+
+                            {% if product.average_rating %}
+
+                                <span class="detail-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+
+                                <strong class="ms-1">
+                                    {{ product.average_rating|floatformat:1 }}
+                                </strong>
+
+                                <small class="text-muted">
+                                    ({{ product.total_reviews }} Reviews)
+                                </small>
+
+                            {% else %}
+                                <small class="text-muted">
+                                    No ratings yet
+                                </small>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+
+                            {% if product.has_discount %}
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                                    <span class="detail-price">
+                                        ৳{{ product.discount_price|floatformat:2 }}
+                                    </span>
+
+                                    <span class="discount-label">
+                                        {{ product.discount_percentage }}% OFF
+                                    </span>
+
+                                </div>
+
+                                <div class="detail-old-price">
+                                    ৳{{ product.price|floatformat:2 }}
+                                </div>
+
+                            {% else %}
+
+                                <div class="detail-price">
+                                    ৳{{ product.price|floatformat:2 }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                        <hr>
+
+                        <!-- SKU -->
+                        <p class="mb-3">
+                            <strong>SKU:</strong>
+                            {{ product.sku }}
+                        </p>
+
+                        <!-- Stock -->
+                        <div class="mb-3">
+
+                            {% if product.stock_quantity > 0 %}
+
+                                <span class="detail-stock bg-success-subtle text-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    In Stock
+                                </span>
+
+                                <p class="small text-muted mt-2 mb-0">
+                                    {{ product.stock_quantity }} units available
+                                </p>
+
+                            {% else %}
+
+                                <span class="detail-stock bg-danger-subtle text-danger">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                    Out of Stock
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Description -->
+                        <h6 class="fw-bold mt-4">
+                            Product Description
+                        </h6>
+
+                        <p class="detail-description">
+                            {{ product.description|default:"No description available."|linebreaksbr }}
+                        </p>
+
+                        <hr>
+
+                        <!-- Purchase Actions -->
+                        <div class="mt-4">
+
+                            {% if not is_manager %}
+
+                                {% if product.stock_quantity > 0 %}
+
+                                    <!-- Quantity and Add to Cart -->
+                                    <form
+                                        method="POST"
+                                        action="{% url 'cart:add_to_cart' product.slug %}"
+                                        class="mb-3"
+                                    >
+                                        {% csrf_token %}
+
+                                        <label for="quantity" class="form-label fw-semibold">
+                                            Quantity
+                                        </label>
+
+                                        <div class="d-flex flex-wrap gap-2 align-items-center">
+
+                                            <input
+                                                type="number"
+                                                name="quantity"
+                                                id="quantity"
+                                                class="form-control quantity-input"
+                                                value="1"
+                                                min="1"
+                                                max="{{ product.stock_quantity }}"
+                                                required
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                            >
+                                                <i class="bi bi-cart-plus me-1"></i>
+                                                Add to Cart
+                                            </button>
+
+                                        </div>
+                                    </form>
+
+                                    <!-- Buy Now -->
+                                    <a
+                                        href="{% url 'orders:order_create' product.slug %}"
+                                        class="btn btn-success w-100"
+                                    >
+                                        <i class="bi bi-bag-check me-1"></i>
+                                        Buy Now
+                                    </a>
+
+                                {% else %}
+
+                                    <button
+                                        class="btn btn-secondary w-100"
+                                        disabled
+                                    >
+                                        <i class="bi bi-x-circle me-1"></i>
+                                        Currently Out of Stock
+                                    </button>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                            <!-- Back to Products -->
+                            <a
+                                href="{% url 'products:product_list' %}"
+                                class="btn btn-outline-dark w-100 mt-3"
+                            >
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back to Products
+                            </a>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Customer Reviews -->
+        <div class="review-section">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+                <div>
+                    <h4 class="fw-bold mb-1">
+                        <i class="bi bi-chat-square-text me-2"></i>
+                        Customer Reviews
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        {{ product.total_reviews }} approved reviews
+                    </p>
+                </div>
+
+                <!-- Write / Edit Review -->
+                {% if user.is_authenticated and user.role == "customer" %}
+
+                    {% if own_review %}
+
+                        <a
+                            href="{% url 'reviews:review_update' product.slug own_review.pk %}"
+                            class="btn btn-outline-primary"
+                        >
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Edit Your Review
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{% url 'reviews:review_create' product.slug %}"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-star me-1"></i>
+                            Write a Review
+                        </a>
+
+                    {% endif %}
+
+                {% elif not user.is_authenticated %}
+
+                    <a
+                        href="{% url 'accounts:login' %}"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        Login to Review
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+            <hr>
+
+            <!-- Review List -->
+            {% for review in reviews %}
+
+                <div class="review-card">
+
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+
+                        <div>
+                            <h6 class="review-user mb-1">
+                                <i class="bi bi-person-circle me-1"></i>
+                                {{ review.user.username }}
+                            </h6>
+
+                            <small class="text-muted">
+                                {{ review.created_at|date:"d M Y" }}
+                            </small>
+                        </div>
+
+                        <!-- Review Rating -->
+                        <div class="review-stars">
+
+                            {% for star in "12345" %}
+
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <!-- Review Title -->
+                    <h6 class="fw-bold mt-3 mb-1">
+                        {{ review.title }}
+                    </h6>
+
+                    <!-- Review Comment -->
+                    <p class="review-comment mb-2">
+                        {{ review.comment|linebreaksbr }}
+                    </p>
+
+                    <!-- Review Owner Actions -->
+                    {% if user.is_authenticated and user.pk == review.user_id %}
+
+                        <div class="d-flex gap-2 mt-3">
+
+                            <a
+                                href="{% url 'reviews:review_update' product.slug review.pk %}"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+                                <i class="bi bi-pencil"></i>
+                                Edit
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{% url 'reviews:review_delete' product.slug review.pk %}"
+                                onsubmit="return confirm('Are you sure you want to delete this review?');"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% empty %}
+
+                <div class="review-empty">
+
+                    <i class="bi bi-chat-square-dots fs-1 d-block mb-3"></i>
+
+                    <h6 class="fw-bold">
+                        No Reviews Yet
+                    </h6>
+
+                    <p class="mb-0">
+                        Be the first customer to share your experience with this product.
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

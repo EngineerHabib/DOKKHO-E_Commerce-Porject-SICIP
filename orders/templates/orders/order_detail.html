@@ -1,0 +1,131 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}Order Details | SmartCommerce{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Order Details</h2>
+            <p class="text-muted mb-0">{{ order.order_number }}</p>
+        </div>
+
+        <a href="{% url 'orders:my_orders' %}"
+           class="btn btn-outline-secondary">
+            Back to My Orders
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">Ordered Products</h5>
+
+                    {% for item in order.items.all %}
+
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
+
+                            <div>
+                                <h6 class="fw-semibold mb-1">{{ item.product_name }}</h6>
+                                <small class="text-muted">
+                                    SKU: {{ item.product_sku }} |
+                                    Quantity: {{ item.quantity }}
+                                </small>
+                            </div>
+
+                            <strong>
+                                ৳{{ item.line_total|floatformat:2 }}
+                            </strong>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">Delivery Information</h5>
+
+                    <p class="mb-1"><strong>{{ order.customer_name }}</strong></p>
+                    <p class="mb-1">{{ order.phone }}</p>
+                    <p class="mb-1">{{ order.email }}</p>
+                    <p class="mb-0">{{ order.shipping_address }}</p>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">Order Summary</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <strong>৳{{ order.subtotal|floatformat:2 }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Delivery Charge</span>
+                        <strong>৳{{ order.delivery_charge|floatformat:2 }}</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fs-5 mb-3">
+                        <strong>Total</strong>
+                        <strong class="text-success">
+                            ৳{{ order.total_amount|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <p class="mb-2">
+                        <strong>Status:</strong>
+                        {{ order.get_status_display }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>Payment:</strong>
+                        {{ order.get_payment_method_display }}
+                    </p>
+
+                    <p class="mb-3">
+                        <strong>Payment Status:</strong>
+                        {{ order.get_payment_status_display }}
+                    </p>
+
+                    {% if order.status == "PENDING" %}
+                        <form method="POST"
+                              action="{% url 'orders:order_cancel' order.order_number %}"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?');">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                Cancel Order
+                            </button>
+
+                        </form>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

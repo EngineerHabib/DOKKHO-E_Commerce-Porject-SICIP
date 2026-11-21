@@ -1,0 +1,718 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_title %}
+    {{ display_role }} Dashboard | SmartECommerce
+{% endblock %}
+
+{% block page_heading %}
+    {{ display_role }} Dashboard
+{% endblock %}
+
+{% block dashboard_content %}
+
+{% if has_dashboard_access %}
+
+
+    <!-- SUPER ADMIN AND ADMIN DASHBOARD -->
+    {% if is_super_admin or is_admin %}
+
+        <h5 class="fw-bold mb-3">
+            Business Overview
+        </h5>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Users</div>
+                        <h3 class="fw-bold mt-2">{{ total_users|default:0 }}</h3>
+                        <i class="bi bi-people text-primary fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Customers</div>
+                        <h3 class="fw-bold mt-2">{{ total_customers|default:0 }}</h3>
+                        <i class="bi bi-person-check text-success fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Products</div>
+                        <h3 class="fw-bold mt-2">{{ total_products|default:0 }}</h3>
+                        <i class="bi bi-box-seam text-info fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Orders</div>
+                        <h3 class="fw-bold mt-2">{{ total_orders|default:0 }}</h3>
+                        <i class="bi bi-cart-check text-warning fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Active Products</div>
+                        <h3 class="fw-bold mt-2">{{ active_products|default:0 }}</h3>
+                        <i class="bi bi-check-circle text-success fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Pending Orders</div>
+                        <h3 class="fw-bold mt-2">{{ pending_orders|default:0 }}</h3>
+                        <i class="bi bi-clock-history text-warning fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Categories</div>
+                        <h3 class="fw-bold mt-2">{{ total_categories|default:0 }}</h3>
+                        <i class="bi bi-tags text-primary fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-secondary">Paid Revenue</div>
+                        <h3 class="fw-bold mt-2">{{ paid_revenue|default:0 }}</h3>
+                        <i class="bi bi-currency-dollar text-success fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Order Status -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Order Status Overview</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-secondary">Processing</small>
+                            <h4 class="fw-bold mb-0">{{ processing_orders|default:0 }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-secondary">Delivered</small>
+                            <h4 class="fw-bold mb-0">{{ delivered_orders|default:0 }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-secondary">Cancelled</small>
+                            <h4 class="fw-bold mb-0">{{ cancelled_orders|default:0 }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-secondary">Total Stock</small>
+                            <h4 class="fw-bold mb-0">{{ total_stock_quantity|default:0 }}</h4>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- INVENTORY MANAGER DASHBOARD -->
+    {% if is_inventory_manager %}
+
+        <h5 class="fw-bold mb-3">Inventory Overview</h5>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Inventory Items</div>
+                        <h3 class="fw-bold">{{ total_inventory_items|default:0 }}</h3>
+                        <i class="bi bi-box-seam fs-3 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Suppliers</div>
+                        <h3 class="fw-bold">{{ total_suppliers|default:0 }}</h3>
+                        <i class="bi bi-truck fs-3 text-info"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Low Stock</div>
+                        <h3 class="fw-bold">{{ low_stock_count|default:0 }}</h3>
+                        <i class="bi bi-exclamation-triangle fs-3 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Out of Stock</div>
+                        <h3 class="fw-bold">{{ out_of_stock_count|default:0 }}</h3>
+                        <i class="bi bi-x-circle fs-3 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Purchases</div>
+                        <h3 class="fw-bold">{{ total_purchases|default:0 }}</h3>
+                        <i class="bi bi-bag-check fs-3 text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Purchase Total</div>
+                        <h3 class="fw-bold">{{ purchase_total|default:0 }}</h3>
+                        <i class="bi bi-currency-dollar fs-3 text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Stock Quantity</div>
+                        <h3 class="fw-bold">{{ total_stock_quantity|default:0 }}</h3>
+                        <i class="bi bi-stack fs-3 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ORDER MANAGER DASHBOARD -->
+    {% if is_order_manager %}
+
+        <h5 class="fw-bold mb-3">Order Management Overview</h5>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Total Orders</div>
+                        <h3 class="fw-bold">{{ total_orders|default:0 }}</h3>
+                        <i class="bi bi-cart fs-3 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Pending</div>
+                        <h3 class="fw-bold">{{ pending_orders|default:0 }}</h3>
+                        <i class="bi bi-clock fs-3 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Processing</div>
+                        <h3 class="fw-bold">{{ processing_orders|default:0 }}</h3>
+                        <i class="bi bi-arrow-repeat fs-3 text-info"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Delivered</div>
+                        <h3 class="fw-bold">{{ delivered_orders|default:0 }}</h3>
+                        <i class="bi bi-check-circle fs-3 text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Cancelled</div>
+                        <h3 class="fw-bold">{{ cancelled_orders|default:0 }}</h3>
+                        <i class="bi bi-x-circle fs-3 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Unpaid Orders</div>
+                        <h3 class="fw-bold">{{ unpaid_orders|default:0 }}</h3>
+                        <i class="bi bi-wallet2 fs-3 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- CUSTOMER DASHBOARD -->
+    {% if is_customer %}
+
+        <h5 class="fw-bold mb-3">My Shopping Overview</h5>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">My Total Orders</div>
+                        <h3 class="fw-bold">{{ my_total_orders|default:0 }}</h3>
+                        <i class="bi bi-bag fs-3 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Pending Orders</div>
+                        <h3 class="fw-bold">{{ my_pending_orders|default:0 }}</h3>
+                        <i class="bi bi-clock fs-3 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Processing Orders</div>
+                        <h3 class="fw-bold">{{ my_processing_orders|default:0 }}</h3>
+                        <i class="bi bi-arrow-repeat fs-3 text-info"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Delivered Orders</div>
+                        <h3 class="fw-bold">{{ my_delivered_orders|default:0 }}</h3>
+                        <i class="bi bi-check-circle fs-3 text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">My Spending</div>
+                        <h3 class="fw-bold">{{ my_total_spending|default:0 }}</h3>
+                        <i class="bi bi-currency-dollar fs-3 text-success"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-secondary">Cancelled Orders</div>
+                        <h3 class="fw-bold">{{ my_cancelled_orders|default:0 }}</h3>
+                        <i class="bi bi-x-circle fs-3 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- RECENT ORDERS -->
+    {% if is_super_admin or is_admin or is_order_manager %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Recent Orders</h5>
+            </div>
+
+            <div class="card-body">
+
+                {% if recent_orders %}
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for order in recent_orders %}
+
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.customer }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                {{ order.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-secondary mb-0">No recent orders found.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% elif is_customer %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">My Recent Orders</h5>
+            </div>
+
+            <div class="card-body">
+
+                {% if my_recent_orders %}
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for order in my_recent_orders %}
+
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                {{ order.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-secondary mb-0">You have no recent orders.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- RECENT CATEGORIES -->
+    {% if is_super_admin or is_admin %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Recent Categories</h5>
+            </div>
+
+            <div class="card-body">
+
+                {% if recent_categories %}
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for category in recent_categories %}
+
+                                    <tr>
+                                        <td>{{ category.name }}</td>
+                                        <td>
+                                            {% if category.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-secondary mb-0">No categories found.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- INVENTORY TRANSACTIONS -->
+    {% if is_super_admin or is_admin or is_inventory_manager %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">Recent Stock Transactions</h5>
+            </div>
+
+            <div class="card-body">
+
+                {% if recent_stock_transactions %}
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for transaction in recent_stock_transactions %}
+
+                                    <tr>
+                                        <td>{{ transaction.product }}</td>
+                                        <td>{{ transaction.transaction_type }}</td>
+                                        <td>{{ transaction.quantity }}</td>
+                                        <td>{{ transaction.created_at|date:"d M Y" }}</td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-secondary mb-0">No stock transactions found.</p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- QUICK ACTIONS -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">Quick Actions</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="d-flex flex-wrap gap-2">
+
+                {% if is_super_admin or is_admin or is_inventory_manager %}
+
+                    <a href="{% url 'categories:category_create' %}"
+                       class="btn btn-primary">
+
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Add Category
+
+                    </a>
+
+                    <a href="{% url 'categories:category_list' %}"
+                       class="btn btn-outline-primary">
+
+                        <i class="bi bi-tags me-1"></i>
+                        View Categories
+
+                    </a>
+
+                {% endif %}
+
+                {% if is_super_admin or is_admin or is_order_manager %}
+
+                    <a href="{% url 'orders:manage_orders' %}"
+                       class="btn btn-outline-success">
+
+                        <i class="bi bi-cart-check me-1"></i>
+                        Manage Orders
+
+                    </a>
+
+                {% endif %}
+
+                {% if is_customer %}
+
+                    <a href="{% url 'home:home' %}"
+                       class="btn btn-primary">
+
+                        <i class="bi bi-shop me-1"></i>
+                        Continue Shopping
+
+                    </a>
+
+                {% endif %}
+
+                {% if is_super_admin or is_admin %}
+
+                    <a href="{% url 'audit:activity_logs' %}"
+                       class="btn btn-outline-secondary">
+
+                        <i class="bi bi-shield-check me-1"></i>
+                        Activity Logs
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+{% else %}
+
+    <!-- ACCESS DENIED -->
+    <div class="card border-0 shadow-sm text-center p-5">
+
+        <i class="bi bi-shield-lock display-1 text-danger mb-3"></i>
+
+        <h3 class="fw-bold">Access Restricted</h3>
+
+        <p class="text-secondary">
+            You do not have permission to access this dashboard.
+        </p>
+
+        <a href="{% url 'home:home' %}"
+           class="btn btn-primary mx-auto">
+
+            <i class="bi bi-house me-2"></i>
+            Back to Home
+
+        </a>
+
+    </div>
+
+{% endif %}
+
+{% endblock dashboard_content %}

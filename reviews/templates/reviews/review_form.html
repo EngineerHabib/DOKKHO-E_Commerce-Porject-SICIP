@@ -1,0 +1,253 @@
+
+{% extends "master/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {{ title }} | SmartCommerce
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .review-card {
+        border: 0;
+        border-radius: 14px;
+    }
+
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 7px;
+    }
+
+    .rating-stars button {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 36px;
+        line-height: 1.2;
+        color: #d5d5d5;
+        cursor: pointer;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .rating-stars button.active {
+        color: #ffc107;
+    }
+
+    .rating-stars button:hover {
+        transform: scale(1.12);
+    }
+
+    .rating-stars button:focus-visible {
+        outline: 2px solid #0d6efd;
+        outline-offset: 4px;
+        border-radius: 4px;
+    }
+
+    .rating-select-fallback {
+        margin-top: 12px;
+    }
+
+    .rating-select-fallback label {
+        font-weight: 600;
+    }
+
+    .rating-select-fallback select {
+        max-width: 220px;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <div class="mb-4">
+                <h2 class="fw-bold">{{ title }}</h2>
+
+                <p class="text-muted mb-0">
+                    Product:
+                    <strong>{{ product.name }}</strong>
+                </p>
+            </div>
+
+            <div class="card shadow-sm review-card">
+
+                <div class="card-body p-4 p-md-5">
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- RATING -->
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                Your Rating
+                            </label>
+
+                            <div class="rating-stars mb-2"
+                                 id="ratingStars"
+                                 role="group"
+                                 aria-label="Select your rating">
+
+                                {% for value in "54321" %}
+                                    <button
+                                        type="button"
+                                        data-rating="{{ value }}"
+                                        aria-label="{{ value }} stars"
+                                        aria-pressed="false">
+                                        ★
+                                    </button>
+                                {% endfor %}
+
+                            </div>
+
+                            <div class="text-muted small"
+                                 id="ratingText">
+                                Select your rating
+                            </div>
+
+                            <!-- Always keep a visible fallback -->
+                            <div class="rating-select-fallback">
+                                {{ form.rating|as_crispy_field }}
+                            </div>
+
+                            {% for error in form.rating.errors %}
+                                <div class="text-danger small mt-2">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <!-- TITLE -->
+                        <div class="mb-3">
+                            {{ form.title|as_crispy_field }}
+                        </div>
+
+                        <!-- COMMENT -->
+                        <div class="mb-3">
+                            {{ form.comment|as_crispy_field }}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- BUTTONS -->
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                <i class="bi bi-send me-1"></i>
+
+                                {% if "Update" in title %}
+                                    Update Review
+                                {% else %}
+                                    Submit Review
+                                {% endif %}
+                            </button>
+
+                            <a href="{% url 'products:product_detail' product.slug %}"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="alert alert-success border-0 mt-3">
+                <i class="bi bi-check-circle me-2"></i>
+                Your review and rating will be published automatically
+                after successful submission.
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const ratingSelect = document.getElementById("id_rating");
+
+    const starButtons = document.querySelectorAll(
+        "#ratingStars button"
+    );
+
+    const ratingText = document.getElementById("ratingText");
+
+    const ratingLabels = {
+        1: "1 Star - Poor",
+        2: "2 Stars - Fair",
+        3: "3 Stars - Good",
+        4: "4 Stars - Very Good",
+        5: "5 Stars - Excellent"
+    };
+
+    if (!ratingSelect) {
+        return;
+    }
+
+    function updateStars(rating) {
+
+        starButtons.forEach(function (button) {
+
+            const value = Number(button.dataset.rating);
+
+            button.classList.toggle(
+                "active",
+                value <= rating
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                value === rating ? "true" : "false"
+            );
+
+        });
+
+        ratingText.textContent =
+            ratingLabels[rating] || "Select your rating";
+    }
+
+    // Star click
+    starButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const rating = Number(button.dataset.rating);
+
+            ratingSelect.value = String(rating);
+
+            updateStars(rating);
+
+        });
+
+    });
+
+    // Dropdown change
+    ratingSelect.addEventListener("change", function () {
+
+        updateStars(Number(ratingSelect.value));
+
+    });
+
+    // Restore existing rating
+    if (ratingSelect.value) {
+        updateStars(Number(ratingSelect.value));
+    }
+
+});
+</script>
+
+{% endblock %}

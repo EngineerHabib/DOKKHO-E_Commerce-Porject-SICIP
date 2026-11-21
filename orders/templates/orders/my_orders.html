@@ -1,0 +1,220 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}My Orders | SmartCommerce{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">My Orders</h2>
+            <p class="text-muted mb-0">
+                Track your orders and purchased products.
+            </p>
+        </div>
+
+        <a href="{% url 'products:product_list' %}" class="btn btn-dark">
+            Continue Shopping
+        </a>
+    </div>
+
+    {% for order in orders %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <!-- ORDER HEADER -->
+            <div class="card-header bg-light py-3">
+                <div class="row align-items-center">
+
+                    <div class="col-md-3">
+                        <small class="text-muted">Order ID</small>
+                        <div class="fw-semibold">
+                            {{ order.order_number }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <small class="text-muted">Date</small>
+                        <div>
+                            {{ order.created_at|date:"d M Y" }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <small class="text-muted">Products</small>
+                        <div>
+                            {{ order.items.count }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <small class="text-muted">Total Amount</small>
+                        <div class="fw-bold">
+                            ৳{{ order.total_amount|floatformat:2 }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <small class="text-muted">Order Status</small>
+                        <div class="mt-1">
+
+                            {% if order.status == "DELIVERED" %}
+                                <span class="badge bg-success">Delivered</span>
+
+                            {% elif order.status == "CANCELLED" %}
+                                <span class="badge bg-danger">Cancelled</span>
+
+                            {% elif order.status == "PENDING" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+
+                            {% elif order.status == "CONFIRMED" %}
+                                <span class="badge bg-info text-dark">Confirmed</span>
+
+                            {% else %}
+                                <span class="badge bg-primary">
+                                    {{ order.get_status_display }}
+                                </span>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ORDER PRODUCTS -->
+            <div class="card-body">
+
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Ordered Products
+                </h6>
+
+                {% for item in order.items.all %}
+
+                    <div class="row align-items-center border-bottom py-3">
+
+                        <div class="col-md-5">
+                            <strong>{{ item.product_name }}</strong>
+
+                            <div class="small text-muted">
+                                SKU: {{ item.product_sku|default:"N/A" }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <small class="text-muted">Quantity</small>
+                            <div>{{ item.quantity }} pcs</div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <small class="text-muted">Unit Price</small>
+                            <div>
+                                ৳{{ item.unit_price|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 text-md-end">
+                            <small class="text-muted">Subtotal</small>
+                            <div class="fw-bold">
+                                ৳{{ item.line_total|floatformat:2 }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p class="text-muted">
+                        No products found in this order.
+                    </p>
+
+                {% endfor %}
+
+                <!-- ORDER TOTAL -->
+                <div class="row justify-content-end mt-3">
+
+                    <div class="col-md-5 col-lg-4">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>
+                                ৳{{ order.subtotal|floatformat:2 }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Charge</span>
+                            <span>
+                                ৳{{ order.delivery_charge|floatformat:2 }}
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total</span>
+                            <span>
+                                ৳{{ order.total_amount|floatformat:2 }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-2 small">
+                            <span>Payment Method</span>
+                            <span>
+                                {{ order.get_payment_method_display }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between small">
+                            <span>Payment Status</span>
+                            <span>
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTION -->
+                <div class="text-end mt-4">
+
+                    <a href="{% url 'orders:order_detail' order.order_number %}"
+                       class="btn btn-outline-dark btn-sm">
+                        <i class="bi bi-eye me-1"></i>
+                        View Order Details
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="card border-0 shadow-sm text-center py-5">
+
+            <i class="bi bi-bag-x display-3 text-muted"></i>
+
+            <h5 class="mt-3">No Orders Yet</h5>
+
+            <p class="text-muted">
+                You haven't placed any orders.
+            </p>
+
+            <div>
+                <a href="{% url 'products:product_list' %}"
+                   class="btn btn-dark">
+                    Explore Products
+                </a>
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+{% endblock %}

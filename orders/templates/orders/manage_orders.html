@@ -1,0 +1,244 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}
+    Manage Orders | SmartCommerce
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Manage Orders
+            </h2>
+
+            <p class="text-muted mb-0">
+                View and manage customer orders.
+            </p>
+        </div>
+
+        <div class="text-muted small">
+            Total Orders: <strong>{{ orders|length }}</strong>
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH AND FILTER -->
+    <form method="GET"
+          action="{% url 'orders:manage_orders' %}"
+          class="row g-2 mb-4">
+
+        <div class="col-md-6">
+
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Search order ID, customer or phone..."
+                   value="{{ search }}">
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <select name="status" class="form-select">
+
+                <option value="">All Statuses</option>
+
+                {% for value, label in status_choices %}
+
+                    <option value="{{ value }}"
+                        {% if status == value %}selected{% endif %}>
+
+                        {{ label }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="col-md-3 d-flex gap-2">
+
+            <button type="submit"
+                    class="btn btn-dark flex-fill">
+
+                <i class="bi bi-search me-1"></i>
+                Search
+
+            </button>
+
+            <a href="{% url 'orders:manage_orders' %}"
+               class="btn btn-outline-secondary">
+
+                Reset
+
+            </a>
+
+        </div>
+
+    </form>
+
+
+    <!-- ORDERS TABLE -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for order in orders %}
+
+                        <tr>
+
+                            <!-- ORDER ID -->
+                            <td class="fw-semibold text-nowrap">
+                                {{ order.order_number }}
+                            </td>
+
+
+                            <!-- CUSTOMER -->
+                            <td>
+                                {{ order.customer_name }}
+                            </td>
+
+
+                            <!-- PHONE -->
+                            <td class="text-nowrap">
+                                {{ order.phone }}
+                            </td>
+
+
+                            <!-- TOTAL -->
+                            <td class="text-nowrap">
+                                ৳{{ order.total_amount|floatformat:2 }}
+                            </td>
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                {% if order.status == "PENDING" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Pending
+                                    </span>
+
+                                {% elif order.status == "CONFIRMED" %}
+
+                                    <span class="badge bg-primary">
+                                        Confirmed
+                                    </span>
+
+                                {% elif order.status == "PROCESSING" %}
+
+                                    <span class="badge bg-info text-dark">
+                                        Processing
+                                    </span>
+
+                                {% elif order.status == "SHIPPED" %}
+
+                                    <span class="badge bg-primary">
+                                        Shipped
+                                    </span>
+
+                                {% elif order.status == "DELIVERED" %}
+
+                                    <span class="badge bg-success">
+                                        Delivered
+                                    </span>
+
+                                {% elif order.status == "CANCELLED" %}
+
+                                    <span class="badge bg-danger">
+                                        Cancelled
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ order.get_status_display }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- DATE -->
+                            <td class="text-nowrap">
+                                {{ order.created_at|date:"d M Y" }}
+                            </td>
+
+
+                            <!-- ACTION -->
+                            <td>
+
+                                <a href="{% url 'orders:manage_order_detail' order.order_number %}"
+                                   class="btn btn-sm btn-outline-dark">
+
+                                    <i class="bi bi-gear me-1"></i>
+                                    Manage
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="7"
+                                class="text-center py-5">
+
+                                <i class="bi bi-inbox fs-1 text-muted"></i>
+
+                                <p class="text-muted mt-2 mb-0">
+                                    No orders found.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

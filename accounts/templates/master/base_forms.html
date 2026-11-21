@@ -1,0 +1,168 @@
+
+{% extends "master/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {{ title|default:"Form" }} | SmartCommerce
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="{{ form_width|default:'col-md-8 col-lg-7' }}">
+
+            <div class="card border-0 shadow-sm">
+
+                <!-- Form Header -->
+                <div class="card-header bg-white border-bottom p-4">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        {% if header_icon %}
+                            <div class="rounded-3 p-3 bg-light">
+                                <i class="{{ header_icon }} fs-4"></i>
+                            </div>
+                        {% endif %}
+
+                        <div>
+                            <h3 class="fw-bold mb-1">
+                                {{ title|default:"Form" }}
+                            </h3>
+
+                            {% if description %}
+                                <p class="text-muted mb-0">
+                                    {{ description }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Form Body -->
+                <div class="card-body p-4">
+
+                    <form
+                        method="{{ form_method|default:'POST' }}"
+                        action="{{ form_action|default:'' }}"
+                        {% if form.is_multipart %}
+                            enctype="multipart/form-data"
+                        {% endif %}
+                        {% if form_id %}
+                            id="{{ form_id }}"
+                        {% endif %}
+                        novalidate
+                    >
+
+                        {% csrf_token %}
+
+                        <!-- Next URL -->
+                        {% if next_url %}
+                            <input
+                                type="hidden"
+                                name="next"
+                                value="{{ next_url }}"
+                            >
+                        {% endif %}
+
+                        <!-- Non Field Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Crispy Form -->
+                        {{ form|crispy }}
+
+                        <!-- Additional Custom Fields -->
+                        {% block extra_form_fields %}
+                        {% endblock %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
+
+                            {% if cancel_url %}
+                                <a href="{{ cancel_url }}"
+                                   class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancel
+                                </a>
+                            {% endif %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary px-4"
+                                {% if submit_disabled %}disabled{% endif %}
+                            >
+
+                                {% if button_icon %}
+                                    <i class="{{ button_icon }} me-1"></i>
+                                {% endif %}
+
+                                {{ button_text|default:"Save" }}
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                    <!-- Login / Register Links -->
+
+                    {% if request.resolver_match.url_name == "register" %}
+
+                        <div class="text-center mt-4 pt-3 border-top">
+
+                            <p class="text-muted mb-0">
+                                Already have an account?
+
+                                <a href="{% url 'accounts:login' %}"
+                                   class="fw-semibold text-decoration-none">
+                                    Login
+                                </a>
+                            </p>
+
+                        </div>
+
+                    {% elif request.resolver_match.url_name == "login" %}
+
+                        <div class="text-center mt-4 pt-3 border-top">
+
+                            <p class="text-muted mb-0">
+                                Don't have an account?
+
+                                <a href="{% url 'accounts:register' %}"
+                                   class="fw-semibold text-decoration-none">
+                                    Register
+                                </a>
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <!-- Optional Footer Note -->
+            {% if footer_note %}
+                <p class="text-muted text-center small mt-3">
+                    {{ footer_note }}
+                </p>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,119 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}Transaction History | SmartCommerce{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Stock Transaction History</h2>
+            <p class="text-muted mb-0">Track all stock movements.</p>
+        </div>
+
+        <a href="{% url 'inventory:inventory_dashboard' %}"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <form method="GET" class="row g-3">
+
+                <div class="col-md-6">
+                    <input type="text"
+                           name="search"
+                           value="{{ search }}"
+                           class="form-control"
+                           placeholder="Search product name or SKU">
+                </div>
+
+                <div class="col-md-4">
+                    <select name="transaction_type" class="form-select">
+                        <option value="">All Transactions</option>
+
+                        {% for value, label in transaction_types %}
+                            <option value="{{ value }}"
+                                {% if transaction_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Transaction Type</th>
+                            <th>Quantity</th>
+                            <th>Previous Stock</th>
+                            <th>New Stock</th>
+                            <th>Created By</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in transactions %}
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ item.inventory.product.name }}
+                            </td>
+
+                            <td>{{ item.inventory.product.sku }}</td>
+
+                            <td>
+                                {% if item.transaction_type == "IN" %}
+                                    <span class="badge bg-success">Stock In</span>
+                                {% elif item.transaction_type == "OUT" %}
+                                    <span class="badge bg-danger">Stock Out</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Adjustment</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.previous_quantity }}</td>
+                            <td>{{ item.new_quantity }}</td>
+                            <td>{{ item.created_by|default:"System" }}</td>
+                            <td>{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                No transaction history found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

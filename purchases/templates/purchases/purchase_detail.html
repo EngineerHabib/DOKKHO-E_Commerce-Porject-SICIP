@@ -1,0 +1,283 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}Purchase Details | SmartCommerce{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">Purchase Details</h2>
+            <p class="text-muted mb-0">
+                {{ purchase.purchase_number }}
+            </p>
+        </div>
+
+        <a href="{% url 'purchases:purchase_list' %}"
+           class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left me-2"></i>Back to Purchases
+        </a>
+
+    </div>
+
+
+    <!-- Purchase Status -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                <div>
+                    <span class="text-muted small">Purchase Status</span>
+
+                    <div class="mt-2">
+
+                        {% if purchase.status == "DRAFT" %}
+                            <span class="badge bg-secondary fs-6">Draft</span>
+                        {% elif purchase.status == "ORDERED" %}
+                            <span class="badge bg-primary fs-6">Ordered</span>
+                        {% elif purchase.status == "RECEIVED" %}
+                            <span class="badge bg-success fs-6">Received</span>
+                        {% elif purchase.status == "CANCELLED" %}
+                            <span class="badge bg-danger fs-6">Cancelled</span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    {% if purchase.status == "DRAFT" %}
+
+                        <a href="{% url 'purchases:purchase_update' purchase.pk %}"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </a>
+
+                        <form method="POST"
+                              action="{% url 'purchases:purchase_mark_ordered' purchase.pk %}">
+                            {% csrf_token %}
+
+                            <button class="btn btn-primary"
+                                    onclick="return confirm('Mark this purchase as ordered?');">
+                                <i class="bi bi-send me-1"></i>Mark Ordered
+                            </button>
+                        </form>
+
+                    {% elif purchase.status == "ORDERED" %}
+
+                        <form method="POST"
+                              action="{% url 'purchases:purchase_receive' purchase.pk %}">
+                            {% csrf_token %}
+
+                            <button class="btn btn-success"
+                                    onclick="return confirm('Confirm receiving all products and updating inventory stock?');">
+                                <i class="bi bi-box-seam me-1"></i>Receive Stock
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if purchase.status == "DRAFT" or purchase.status == "ORDERED" %}
+
+                        <form method="POST"
+                              action="{% url 'purchases:purchase_cancel' purchase.pk %}">
+                            {% csrf_token %}
+
+                            <button class="btn btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to cancel this purchase?');">
+                                <i class="bi bi-x-circle me-1"></i>Cancel Purchase
+                            </button>
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Supplier Information -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-building me-2 text-primary"></i>
+                        Supplier Information
+                    </h5>
+
+                    <h6 class="fw-bold">
+                        {{ purchase.supplier.company_name }}
+                    </h6>
+
+                    <p class="text-muted mb-2">
+                        {{ purchase.supplier.contact_person }}
+                    </p>
+
+                    <p class="mb-2">
+                        <i class="bi bi-telephone me-2 text-muted"></i>
+                        {{ purchase.supplier.phone }}
+                    </p>
+
+                    {% if purchase.supplier.email %}
+                        <p class="mb-2">
+                            <i class="bi bi-envelope me-2 text-muted"></i>
+                            {{ purchase.supplier.email }}
+                        </p>
+                    {% endif %}
+
+                    <p class="text-muted mb-0">
+                        {{ purchase.supplier.address }}
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-6">
+
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-receipt me-2 text-primary"></i>
+                        Purchase Information
+                    </h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Purchase Number</span>
+                        <strong>{{ purchase.purchase_number }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Purchase Date</span>
+                        <strong>{{ purchase.purchase_date|date:"d M Y" }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Expected Delivery</span>
+                        <strong>
+                            {{ purchase.expected_delivery_date|date:"d M Y"|default:"Not specified" }}
+                        </strong>
+                    </div>
+
+                    {% if purchase.received_at %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Received At</span>
+                            <strong>{{ purchase.received_at|date:"d M Y, h:i A" }}</strong>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Created By</span>
+                        <strong>{{ purchase.created_by|default:"System" }}</strong>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Purchase Products -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-4">Purchased Products</h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Quantity</th>
+                            <th>Unit Cost</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in items %}
+
+                            <tr>
+                                <td class="fw-semibold">
+                                    {{ item.product.name }}
+                                </td>
+
+                                <td>{{ item.product.sku }}</td>
+
+                                <td>{{ item.quantity }}</td>
+
+                                <td>৳{{ item.unit_cost|floatformat:2 }}</td>
+
+                                <td class="text-end fw-semibold">
+                                    ৳{{ item.line_total|floatformat:2 }}
+                                </td>
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    No products added.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                    <tfoot class="table-light">
+
+                        <tr>
+                            <th colspan="2">Total</th>
+                            <th>{{ purchase.total_quantity }}</th>
+                            <th></th>
+                            <th class="text-end text-success">
+                                ৳{{ purchase.total_amount|floatformat:2 }}
+                            </th>
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {% if purchase.notes %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="fw-bold">Purchase Notes</h6>
+                <p class="text-muted mb-0">{{ purchase.notes|linebreaksbr }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

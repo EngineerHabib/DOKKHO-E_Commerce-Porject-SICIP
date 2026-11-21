@@ -1,0 +1,421 @@
+
+{% extends "master/base_forms.html" %}
+
+{% block title %}Checkout | SmartCommerce{% endblock %}
+
+
+{% block extra_form_fields %}
+
+<!-- ORDER SUMMARY -->
+<div class="card border-0 shadow-sm mt-4">
+
+    <div class="card-body p-4">
+
+        <h5 class="fw-bold mb-4">
+            <i class="bi bi-bag-check me-2"></i>
+            Order Summary
+        </h5>
+
+
+        <!-- PRODUCT INFORMATION -->
+        <div class="d-flex gap-3 mb-4">
+
+            {% if product.image %}
+                <img
+                    src="{{ product.image.url }}"
+                    alt="{{ product.name }}"
+                    style="
+                        width: 90px;
+                        height: 90px;
+                        object-fit: cover;
+                        border-radius: 8px;
+                    "
+                >
+            {% endif %}
+
+            <div class="flex-grow-1">
+
+                <h6 class="fw-bold mb-1">
+                    {{ product.name }}
+                </h6>
+
+                <small class="text-muted">
+                    SKU: {{ product.sku }}
+                </small>
+
+                <div class="fw-bold text-success mt-2">
+                    ৳{{ product.discount_price|floatformat:2 }}
+                </div>
+
+                <small class="text-muted">
+                    {{ available_stock }} units available
+                </small>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+
+        <!-- UNIT PRICE -->
+        <div class="d-flex justify-content-between mb-3">
+
+            <span class="text-muted">
+                Unit Price
+            </span>
+
+            <strong>
+                ৳{{ product.discount_price|floatformat:2 }}
+            </strong>
+
+        </div>
+
+
+        <!-- SUMMARY QUANTITY -->
+        <div class="d-flex justify-content-between mb-3">
+
+            <span class="text-muted">
+                Quantity
+            </span>
+
+            <strong id="summaryQuantity">
+                1
+            </strong>
+
+        </div>
+
+
+        <!-- SUBTOTAL -->
+        <div class="d-flex justify-content-between mb-3">
+
+            <span class="text-muted">
+                Subtotal
+            </span>
+
+            <strong>
+                ৳<span id="subtotal">
+                    {{ product.discount_price|floatformat:2 }}
+                </span>
+            </strong>
+
+        </div>
+
+
+        <!-- DELIVERY CHARGE -->
+        <div class="d-flex justify-content-between mb-3">
+
+            <span class="text-muted">
+                Delivery Charge
+            </span>
+
+            <strong>
+                ৳{{ delivery_charge|floatformat:2 }}
+            </strong>
+
+        </div>
+
+        <hr>
+
+
+        <!-- TOTAL -->
+        <div class="d-flex justify-content-between align-items-center">
+
+            <strong class="fs-5">
+                Total
+            </strong>
+
+            <strong class="fs-5 text-success">
+                ৳<span id="total">
+                    {{ product.discount_price|floatformat:2 }}
+                </span>
+            </strong>
+
+        </div>
+
+
+        <small class="text-muted d-block mt-3">
+            Final amount will be calculated securely when you confirm your order.
+        </small>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+{{ block.super }}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    "use strict";
+
+    // =====================================
+    // FIND DJANGO QUANTITY INPUT
+    // =====================================
+
+    const quantityInput = document.querySelector(
+        'input[name="quantity"]'
+    );
+
+    if (!quantityInput) {
+        console.error("Django quantity input not found!");
+        return;
+    }
+
+
+    // =====================================
+    // PRODUCT INFORMATION
+    // =====================================
+
+    const unitPrice = Number("{{ product.discount_price }}");
+    const deliveryCharge = Number("{{ delivery_charge }}");
+    const availableStock = Number("{{ available_stock }}");
+
+    const minimumQuantity = 1;
+
+
+    // =====================================
+    // SUMMARY ELEMENTS
+    // =====================================
+
+    const summaryQuantity = document.getElementById("summaryQuantity");
+    const subtotalElement = document.getElementById("subtotal");
+    const totalElement = document.getElementById("total");
+
+
+    // =====================================
+    // VALIDATION
+    // =====================================
+
+    if (
+        !Number.isFinite(unitPrice) ||
+        !Number.isFinite(deliveryCharge) ||
+        !Number.isFinite(availableStock)
+    ) {
+        console.error("Invalid product information.");
+        return;
+    }
+
+    if (availableStock < minimumQuantity) {
+
+        quantityInput.value = 0;
+        quantityInput.disabled = true;
+
+        return;
+    }
+
+
+    // =====================================
+    // CONFIGURE EXISTING INPUT
+    // =====================================
+
+    quantityInput.type = "number";
+    quantityInput.min = minimumQuantity;
+    quantityInput.max = availableStock;
+    quantityInput.step = 1;
+    quantityInput.inputMode = "numeric";
+    quantityInput.autocomplete = "off";
+
+    quantityInput.classList.add("text-center", "fw-bold");
+
+
+    // =====================================
+    // CREATE QUANTITY BUTTONS
+    // =====================================
+
+    const inputGroup = document.createElement("div");
+
+    inputGroup.className = "input-group";
+    inputGroup.style.maxWidth = "220px";
+
+    const decreaseButton = document.createElement("button");
+
+    decreaseButton.type = "button";
+    decreaseButton.className = "btn btn-outline-secondary";
+    decreaseButton.innerHTML = '<i class="bi bi-dash-lg"></i>';
+    decreaseButton.setAttribute("aria-label", "Decrease quantity");
+
+    const increaseButton = document.createElement("button");
+
+    increaseButton.type = "button";
+    increaseButton.className = "btn btn-outline-secondary";
+    increaseButton.innerHTML = '<i class="bi bi-plus-lg"></i>';
+    increaseButton.setAttribute("aria-label", "Increase quantity");
+
+
+    // Keep the same Django input.
+    const parent = quantityInput.parentNode;
+
+    parent.insertBefore(inputGroup, quantityInput);
+
+    inputGroup.appendChild(decreaseButton);
+    inputGroup.appendChild(quantityInput);
+    inputGroup.appendChild(increaseButton);
+
+
+    // =====================================
+    // GET VALID QUANTITY
+    // =====================================
+
+    function getQuantity() {
+
+        const value = quantityInput.value.trim();
+
+        if (value === "") {
+            return null;
+        }
+
+        const quantity = Number(value);
+
+        if (!Number.isInteger(quantity)) {
+            return null;
+        }
+
+        return Math.max(
+            minimumQuantity,
+            Math.min(quantity, availableStock)
+        );
+    }
+
+
+    // =====================================
+    // UPDATE SUMMARY
+    // =====================================
+
+    function updateSummary(quantity) {
+
+        const subtotal = unitPrice * quantity;
+
+        const total = subtotal + deliveryCharge;
+
+        summaryQuantity.textContent = quantity;
+
+        subtotalElement.textContent = subtotal.toFixed(2);
+
+        totalElement.textContent = total.toFixed(2);
+
+        decreaseButton.disabled = quantity <= minimumQuantity;
+
+        increaseButton.disabled = quantity >= availableStock;
+    }
+
+
+    // =====================================
+    // SET QUANTITY
+    // =====================================
+
+    function setQuantity(quantity) {
+
+        quantity = Math.max(
+            minimumQuantity,
+            Math.min(quantity, availableStock)
+        );
+
+        quantityInput.value = quantity;
+
+        updateSummary(quantity);
+    }
+
+
+    // =====================================
+    // DECREASE BUTTON
+    // =====================================
+
+    decreaseButton.addEventListener("click", function () {
+
+        const currentQuantity = getQuantity() ?? minimumQuantity;
+
+        setQuantity(currentQuantity - 1);
+
+    });
+
+
+    // =====================================
+    // INCREASE BUTTON
+    // =====================================
+
+    increaseButton.addEventListener("click", function () {
+
+        const currentQuantity = getQuantity() ?? minimumQuantity;
+
+        setQuantity(currentQuantity + 1);
+
+    });
+
+
+    // =====================================
+    // MANUAL QUANTITY INPUT
+    // =====================================
+
+    quantityInput.addEventListener("focus", function () {
+
+        // Select existing value so typing replaces it.
+        quantityInput.select();
+
+    });
+
+
+    quantityInput.addEventListener("input", function () {
+
+        const quantity = getQuantity();
+
+        if (quantity !== null) {
+            updateSummary(quantity);
+        }
+
+    });
+
+
+    quantityInput.addEventListener("change", function () {
+
+        const quantity = getQuantity();
+
+        setQuantity(quantity ?? minimumQuantity);
+
+    });
+
+
+    quantityInput.addEventListener("blur", function () {
+
+        const quantity = getQuantity();
+
+        setQuantity(quantity ?? minimumQuantity);
+
+    });
+
+
+    // =====================================
+    // PREVENT BUTTON FOCUS FROM
+    // INTERFERING WITH INPUT SELECTION
+    // =====================================
+
+    decreaseButton.addEventListener("mousedown", function (event) {
+        event.preventDefault();
+    });
+
+    increaseButton.addEventListener("mousedown", function (event) {
+        event.preventDefault();
+    });
+
+
+    // =====================================
+    // INITIALIZE
+    // =====================================
+
+    const initialQuantity = Number(quantityInput.value);
+
+    setQuantity(
+        Number.isInteger(initialQuantity) && initialQuantity >= 1
+            ? initialQuantity
+            : 1
+    );
+
+});
+</script>
+
+{% endblock %}

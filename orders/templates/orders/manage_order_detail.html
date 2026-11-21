@@ -1,0 +1,367 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}
+    Manage Order | SmartCommerce
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">Manage Order</h2>
+            <p class="text-muted mb-0">
+                {{ order.order_number }}
+            </p>
+        </div>
+
+        <a href="{% url 'orders:manage_orders' %}"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Orders
+        </a>
+
+    </div>
+
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-7">
+
+            <!-- CUSTOMER INFORMATION -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-person-circle me-2"></i>
+                        Customer Information
+                    </h5>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            Customer Name
+                        </small>
+                        <strong>{{ order.customer_name }}</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            Email Address
+                        </small>
+                        {{ order.email }}
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            Phone Number
+                        </small>
+                        {{ order.phone }}
+                    </div>
+
+                    <div>
+                        <small class="text-muted d-block">
+                            Shipping Address
+                        </small>
+                        {{ order.shipping_address|linebreaksbr }}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ORDER ITEMS -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-box-seam me-2"></i>
+                        Order Items
+                    </h5>
+
+                    {% for item in order.items.all %}
+
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-3 gap-3">
+
+                            <div>
+                                <strong>{{ item.product_name }}</strong>
+
+                                <div class="small text-muted mt-1">
+                                    SKU: {{ item.product_sku }}
+                                    <span class="mx-1">|</span>
+                                    Quantity: {{ item.quantity }}
+                                </div>
+
+                                <div class="small text-muted">
+                                    Unit Price:
+                                    ৳{{ item.unit_price|floatformat:2 }}
+                                </div>
+                            </div>
+
+                            <strong class="text-nowrap">
+                                ৳{{ item.line_total|floatformat:2 }}
+                            </strong>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="alert alert-warning mb-0">
+                            No order items found.
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-receipt me-2"></i>
+                        Order Summary
+                    </h5>
+
+                    <!-- CURRENT STATUS -->
+                    <div class="mb-4">
+
+                        <small class="text-muted d-block mb-2">
+                            Current Order Status
+                        </small>
+
+                        {% if order.status == "PENDING" %}
+                            <span class="badge bg-warning text-dark fs-6">
+                                Pending
+                            </span>
+
+                        {% elif order.status == "CONFIRMED" %}
+                            <span class="badge bg-primary fs-6">
+                                Confirmed
+                            </span>
+
+                        {% elif order.status == "PROCESSING" %}
+                            <span class="badge bg-info text-dark fs-6">
+                                Processing
+                            </span>
+
+                        {% elif order.status == "SHIPPED" %}
+                            <span class="badge bg-primary fs-6">
+                                Shipped
+                            </span>
+
+                        {% elif order.status == "DELIVERED" %}
+                            <span class="badge bg-success fs-6">
+                                Delivered
+                            </span>
+
+                        {% elif order.status == "CANCELLED" %}
+                            <span class="badge bg-danger fs-6">
+                                Cancelled
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- PRICE SUMMARY -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Subtotal</span>
+                        <strong>
+                            ৳{{ order.subtotal|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Delivery Charge</span>
+                        <strong>
+                            ৳{{ order.delivery_charge|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fs-5 mb-4">
+                        <strong>Total</strong>
+                        <strong class="text-success">
+                            ৳{{ order.total_amount|floatformat:2 }}
+                        </strong>
+                    </div>
+
+                    <!-- PAYMENT INFORMATION -->
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            Payment Method
+                        </small>
+                        <strong>
+                            {{ order.get_payment_method_display }}
+                        </strong>
+                    </div>
+
+                    <div class="mb-4">
+                        <small class="text-muted d-block">
+                            Payment Status
+                        </small>
+
+                        {% if order.payment_status == "PAID" %}
+                            <span class="badge bg-success">
+                                {{ order.get_payment_status_display }}
+                            </span>
+
+                        {% elif order.payment_status == "REFUNDED" %}
+                            <span class="badge bg-secondary">
+                                {{ order.get_payment_status_display }}
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                {{ order.get_payment_status_display }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <!-- ORDER MANAGEMENT ACTIONS -->
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Order Management
+                    </h6>
+
+                    {% if order.status == "CANCELLED" %}
+
+                        <!-- REOPEN CANCELLED ORDER -->
+                        <div class="alert alert-warning">
+
+                            <h6 class="fw-bold">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Order Cancelled
+                            </h6>
+
+                            <p class="small mb-3">
+                                You can reopen this order if sufficient
+                                inventory stock is available.
+                            </p>
+
+                            <form method="POST"
+                                  action="{% url 'orders:reopen_cancelled_order' order.order_number %}">
+
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="btn btn-success w-100"
+                                        onclick="return confirm('Are you sure you want to reopen this order?');">
+
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                    Reopen Order
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Reopening will check stock and deduct the
+                            required quantity again.
+                        </div>
+
+                    {% elif order.status == "DELIVERED" %}
+
+                        <!-- DELIVERED ORDER -->
+                        <div class="alert alert-success mb-0">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            <strong>Order Delivered</strong>
+
+                            <p class="small mb-0 mt-2">
+                                This order has already been delivered.
+                                No further status changes are allowed.
+                            </p>
+
+                        </div>
+
+                    {% else %}
+
+                        <!-- UPDATE ORDER STATUS -->
+                        <form method="POST"
+                              action="{% url 'orders:update_order_status' order.order_number %}">
+
+                            {% csrf_token %}
+
+                            <label for="orderStatus" class="form-label">
+                                Select Next Status
+                            </label>
+
+                            <select name="status"
+                                    id="orderStatus"
+                                    class="form-select mb-3"
+                                    required>
+
+                                {% for value, label in status_choices %}
+
+                                    {% if value != order.status %}
+
+                                        <option value="{{ value }}">
+                                            {{ label }}
+                                        </option>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                            </select>
+
+                            <button type="submit"
+                                    class="btn btn-dark w-100"
+                                    onclick="return confirm('Are you sure you want to update this order status?');">
+
+                                <i class="bi bi-check-circle me-2"></i>
+                                Update Status
+
+                            </button>
+
+                        </form>
+
+                        <!-- WORKFLOW INFORMATION -->
+                        <div class="alert alert-light border small mt-3 mb-0">
+
+                            <strong>Order Workflow:</strong>
+
+                            <div class="mt-2">
+                                Pending → Confirmed → Processing
+                                → Shipped → Delivered
+                            </div>
+
+                            <hr>
+
+                            <strong>Cancellation:</strong>
+
+                            <div class="mt-1">
+                                Only Pending orders can be cancelled.
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,497 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}Checkout | SmartCommerce{% endblock %}
+
+{% block content %}
+
+<style>
+    .checkout-page {
+        background: #f7f8fa;
+        min-height: 80vh;
+        padding: 45px 0;
+    }
+
+    .checkout-card,
+    .summary-card {
+        background: #fff;
+        border: 1px solid #edf0f3;
+        border-radius: 16px;
+    }
+
+    .checkout-card {
+        padding: 28px;
+    }
+
+    .summary-card {
+        position: sticky;
+        top: 90px;
+        padding: 25px;
+    }
+
+    .checkout-title {
+        font-weight: 800;
+        color: #172033;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-control {
+        padding: 11px 13px;
+        border-radius: 9px;
+    }
+
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .12);
+    }
+
+    .checkout-total {
+        font-size: 23px;
+        font-weight: 800;
+        color: #198754;
+    }
+
+    .checkout-btn {
+        padding: 13px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    .checkout-product-image {
+        width: 55px;
+        height: 55px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f1f3f5;
+        flex-shrink: 0;
+    }
+
+    .payment-option {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 16px;
+        transition: .2s;
+    }
+
+    .payment-option:hover {
+        border-color: #198754;
+        background: #f8fff9;
+    }
+
+    .summary-product {
+        min-width: 0;
+    }
+
+    @media (max-width: 767px) {
+        .summary-card {
+            position: static;
+        }
+
+        .checkout-card {
+            padding: 20px;
+        }
+
+        .checkout-page {
+            padding: 25px 0;
+        }
+    }
+</style>
+
+
+<div class="checkout-page">
+
+    <div class="container">
+
+        <!-- Page Heading -->
+        <div class="mb-4">
+
+            <div class="small text-success fw-semibold mb-2">
+                <i class="bi bi-shield-check me-1"></i>
+                SECURE CHECKOUT
+            </div>
+
+            <h2 class="checkout-title">
+                Complete Your Order
+            </h2>
+
+            <p class="text-muted mb-0">
+                Enter your delivery information to confirm your order.
+            </p>
+
+        </div>
+
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+        {% if not cart_items %}
+
+            <div class="alert alert-warning text-center p-4">
+
+                <i class="bi bi-cart-x fs-1 d-block mb-3"></i>
+
+                <h5>Your Cart Is Empty</h5>
+
+                <p class="text-muted">
+                    Please add products to your cart before checkout.
+                </p>
+
+                <a href="{% url 'products:product_list' %}"
+                   class="btn btn-success">
+                    Continue Shopping
+                </a>
+
+            </div>
+
+        {% else %}
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="row g-4">
+
+                <!-- Customer Information -->
+                <div class="col-lg-8">
+
+                    <div class="checkout-card shadow-sm">
+
+                        <h5 class="fw-bold mb-4">
+                            <i class="bi bi-person-lines-fill text-success me-2"></i>
+                            Customer Information
+                        </h5>
+
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+
+                        <!-- Customer Name -->
+                        <div class="mb-3">
+
+                            <label class="form-label"
+                                   for="{{ form.customer_name.id_for_label }}">
+                                Full Name
+                            </label>
+
+                            {{ form.customer_name }}
+
+                            {% for error in form.customer_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label"
+                                       for="{{ form.email.id_for_label }}">
+                                    Email Address
+                                </label>
+
+                                {{ form.email }}
+
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- Phone -->
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label"
+                                       for="{{ form.phone.id_for_label }}">
+                                    Phone Number
+                                </label>
+
+                                {{ form.phone }}
+
+                                {% for error in form.phone.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Address -->
+                        <div class="mb-3">
+
+                            <label class="form-label"
+                                   for="{{ form.shipping_address.id_for_label }}">
+                                Delivery Address
+                            </label>
+
+                            {{ form.shipping_address }}
+
+                            {% for error in form.shipping_address.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- Order Note -->
+                        <div class="mb-4">
+
+                            <label class="form-label"
+                                   for="{{ form.note.id_for_label }}">
+                                Order Note (Optional)
+                            </label>
+
+                            {{ form.note }}
+
+                            {% for error in form.note.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- Payment Method -->
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-wallet2 text-success me-2"></i>
+                            Payment Method
+                        </h5>
+
+
+                        <div class="payment-option mb-4">
+
+                            <div class="form-check">
+
+                                <input
+                                    type="radio"
+                                    name="payment_method"
+                                    id="payment_cod"
+                                    value="COD"
+                                    class="form-check-input"
+                                    checked
+                                >
+
+                                <label for="payment_cod"
+                                       class="form-check-label">
+
+                                    <strong>
+                                        Cash on Delivery (COD)
+                                    </strong>
+
+                                    <p class="text-muted small mb-0 mt-1">
+                                        Pay when your products are delivered.
+                                    </p>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+
+                            <button type="submit"
+                                    class="btn btn-success btn-lg checkout-btn flex-grow-1">
+
+                                <i class="bi bi-check-circle me-2"></i>
+                                Confirm Order
+
+                            </button>
+
+
+                            <a href="{% url 'cart:cart_detail' %}"
+                               class="btn btn-outline-secondary btn-lg checkout-btn">
+
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back to Cart
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+
+                    <div class="summary-card shadow-sm">
+
+                        <h5 class="fw-bold mb-4">
+                            Order Summary
+                        </h5>
+
+
+                        <!-- Products -->
+                        {% for item in cart_items %}
+
+                            <div class="d-flex align-items-center gap-3 mb-3">
+
+                                {% if item.product.image %}
+
+                                    <img
+                                        src="{{ item.product.image.url }}"
+                                        alt="{{ item.product.name }}"
+                                        class="checkout-product-image"
+                                    >
+
+                                {% else %}
+
+                                    <div class="checkout-product-image d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-secondary"></i>
+                                    </div>
+
+                                {% endif %}
+
+
+                                <div class="flex-grow-1 summary-product">
+
+                                    <div class="fw-semibold small text-truncate">
+                                        {{ item.product.name }}
+                                    </div>
+
+                                    <div class="text-muted small">
+                                        {{ item.quantity }} ×
+                                        ৳{{ item.unit_price|floatformat:2 }}
+                                    </div>
+
+                                </div>
+
+
+                                <strong class="small text-nowrap">
+                                    ৳{{ item.line_total|floatformat:2 }}
+                                </strong>
+
+                            </div>
+
+                        {% empty %}
+
+                            <p class="text-muted">
+                                No products found.
+                            </p>
+
+                        {% endfor %}
+
+
+                        <hr>
+
+
+                        <!-- Total Products -->
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span class="text-muted">
+                                Total Items
+                            </span>
+
+                            <strong>
+                                {{ cart.total_items }}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- Subtotal -->
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span class="text-muted">
+                                Subtotal
+                            </span>
+
+                            <strong>
+                                ৳{{ cart.subtotal|floatformat:2 }}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- Delivery Charge -->
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span class="text-muted">
+                                Delivery Charge
+                            </span>
+
+                            <strong>
+                                ৳{{ delivery_charge|floatformat:2 }}
+                            </strong>
+
+                        </div>
+
+
+                        <hr>
+
+
+                        <!-- Grand Total -->
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <strong>
+                                Total Amount
+                            </strong>
+
+                            <span class="checkout-total">
+                                ৳{{ total_amount|floatformat:2 }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert alert-success mt-4 mb-0 small">
+
+                            <i class="bi bi-shield-check me-1"></i>
+
+                            Your order and stock availability will be verified before confirmation.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

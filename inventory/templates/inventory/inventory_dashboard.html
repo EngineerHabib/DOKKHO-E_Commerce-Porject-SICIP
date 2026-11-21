@@ -1,0 +1,120 @@
+
+{% extends "master/base.html" %}
+
+{% block title %}Inventory Dashboard | SmartCommerce{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Inventory Dashboard</h2>
+            <p class="text-muted mb-0">Monitor your stock and inventory activities.</p>
+        </div>
+
+        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-primary">
+            <i class="bi bi-box-seam me-1"></i> Manage Inventory
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Products in Inventory</div>
+                    <h2 class="fw-bold mt-2">{{ total_products }}</h2>
+                    <i class="bi bi-box-seam text-primary fs-3"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Low Stock</div>
+                    <h2 class="fw-bold text-warning mt-2">{{ low_stock_count }}</h2>
+                    <i class="bi bi-exclamation-triangle text-warning fs-3"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Out of Stock</div>
+                    <h2 class="fw-bold text-danger mt-2">{{ out_of_stock_count }}</h2>
+                    <i class="bi bi-x-circle text-danger fs-3"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total Transactions</div>
+                    <h2 class="fw-bold text-success mt-2">{{ total_transactions }}</h2>
+                    <i class="bi bi-arrow-left-right text-success fs-3"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Recent Stock Transactions</h5>
+            <a href="{% url 'inventory:transaction_history' %}" class="btn btn-sm btn-outline-primary">
+                View All
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Previous Stock</th>
+                            <th>New Stock</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in recent_transactions %}
+                        <tr>
+                            <td class="fw-semibold">{{ item.inventory.product.name }}</td>
+
+                            <td>
+                                {% if item.transaction_type == "IN" %}
+                                    <span class="badge bg-success">Stock In</span>
+                                {% elif item.transaction_type == "OUT" %}
+                                    <span class="badge bg-danger">Stock Out</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Adjustment</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.previous_quantity }}</td>
+                            <td>{{ item.new_quantity }}</td>
+                            <td>{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No stock transactions available.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

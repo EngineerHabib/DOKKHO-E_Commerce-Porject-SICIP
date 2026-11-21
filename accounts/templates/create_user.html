@@ -1,0 +1,128 @@
+
+{% extends "dashboard/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block dashboard_title %}
+    Create User
+{% endblock %}
+
+{% block page_heading %}
+    Create New User
+{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="container-fluid px-0">
+
+    <div class="card border-0 shadow-sm rounded-4">
+
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-1 fw-bold">
+                <i class="bi bi-person-plus me-2"></i>
+                Create New Account
+            </h5>
+
+            <p class="text-muted mb-0 small">
+                Create an account and assign an appropriate role.
+            </p>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form method="POST"
+                  enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.username|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.email|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.first_name|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.last_name|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.phone|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.role|as_crispy_field }}
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        {{ form.address|as_crispy_field }}
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        {{ form.profile_image|as_crispy_field }}
+                    </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Account Password
+                </h6>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.password1|as_crispy_field }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.password2|as_crispy_field }}
+                    </div>
+
+                </div>
+
+                <div class="alert alert-info small">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Select the appropriate user role carefully.
+                    Super Admin privileges cannot be assigned here.
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 justify-content-end mt-4">
+
+                    <a href="{% url 'accounts:manage_users' %}"
+                       class="btn btn-light border">
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        <i class="bi bi-person-plus me-1"></i>
+                        Create Account
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
